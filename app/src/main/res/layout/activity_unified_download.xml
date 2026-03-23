@@ -13,18 +13,6 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-
-        <Button
-            android:id="@+id/btn_stream_mode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="5dp"
-            android:text="Stream"
-            android:textColor="@android:color/white"
-            android:background="@android:color/darker_gray" />
-
-
         <Button
             android:id="@+id/btn_download_mode"
             android:layout_width="0dp"
@@ -68,12 +56,6 @@
             <include
                 android:id="@+id/download_layout"
                 layout="@layout/unified_download_layout"
-                android:visibility="gone" />
-
-            <!-- Stream Mode Layout -->
-            <include
-                android:id="@+id/stream_layout"
-                layout="@layout/unified_stream_layout"
                 android:visibility="gone" />
 
         </LinearLayout>
