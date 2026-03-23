@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true">
-        <activity android:name=".MainActivity"
+        <activity android:name=".UnifiedDownloadActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,15 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".StreamingExampleActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".DownloadingExampleActivity"
-            android:screenOrientation="portrait"></activity>
-        <activity
-            android:name=".CommandExampleActivity"
-            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

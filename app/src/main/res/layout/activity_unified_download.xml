@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Mode Selection Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+
+        <Button
+            android:id="@+id/btn_stream_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Stream"
+            android:textColor="@android:color/white"
+            android:background="@android:color/darker_gray" />
+
+
+        <Button
+            android:id="@+id/btn_download_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Download"
+            android:textColor="@android:color/white"
+            android:background="@android:color/darker_gray" />
+
+        <Button
+            android:id="@+id/btn_command_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Command"
+            android:textColor="@android:color/white"
+            android:background="@android:color/darker_gray" />
+
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Command Mode Layout -->
+            <include
+                android:id="@+id/command_layout"
+                layout="@layout/unified_command_layout"
+                android:visibility="gone" />
+
+            <!-- Download Mode Layout -->
+            <include
+                android:id="@+id/download_layout"
+                layout="@layout/unified_download_layout"
+                android:visibility="gone" />
+
+            <!-- Stream Mode Layout -->
+            <include
+                android:id="@+id/stream_layout"
+                layout="@layout/unified_stream_layout"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Common Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/pb_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        tools:visibility="visible" />
+
+</LinearLayout>
