@@ -2,9 +2,9 @@ package com.yausername.ffmpeg
 
 import android.content.Context
 import com.yausername.youtubedl_android.YoutubeDLException
-import com.yausername.youtubedl_common.SharedPrefsHelper
-import com.yausername.youtubedl_common.SharedPrefsHelper.update
-import com.yausername.youtubedl_common.utils.ZipUtils.unzip
+import com.yausername.youtubedl_android.utils.SharedPrefsHelper
+import com.yausername.youtubedl_android.utils.SharedPrefsHelper.update
+import com.yausername.youtubedl_android.utils.ZipUtils.unzip
 import org.apache.commons.io.FileUtils
 import java.io.File
 
@@ -42,7 +42,7 @@ object FFmpeg {
     }
 
     private fun shouldUpdateFFmpeg(appContext: Context, version: String): Boolean {
-        return version != SharedPrefsHelper[appContext, ffmpegLibVersion]
+        return version != SharedPrefsHelper.get(appContext, ffmpegLibVersion)
     }
 
     private fun updateFFmpeg(appContext: Context, version: String) {

@@ -34,7 +34,7 @@ configurePublishing {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    implementation(project(":common"))
+  //  implementation(project(":common"))
     implementation("androidx.core:core-ktx:${rootProject.extra["coreKtxVer"]}")
     compileOnly(project(":library"))
 

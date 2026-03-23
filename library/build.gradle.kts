@@ -35,7 +35,7 @@ configurePublishing {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    implementation(project(":common"))
+   // implementation(project(":common"))
 
     implementation("androidx.appcompat:appcompat:${rootProject.extra["appCompatVer"]}")
     implementation("androidx.core:core-ktx:${rootProject.extra["coreKtxVer"]}")
@@ -46,4 +46,5 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:${rootProject.extra["jacksonVer"]}")
     implementation("com.fasterxml.jackson.core:jackson-annotations:${rootProject.extra["jacksonVer"]}")
     implementation("commons-io:commons-io:${rootProject.extra["commonsIoVer"]}")
+    implementation("org.apache.commons:commons-compress:${rootProject.extra["commonsCompressVer"]}")
 }

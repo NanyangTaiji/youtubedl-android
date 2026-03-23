@@ -59,6 +59,14 @@ dependencies {
     implementation(project(":ffmpeg"))
     implementation(project(":aria2c"))
 
+    /*val youtubedlAndroid = "0.18.1"
+
+
+    implementation("io.github.junkfood02.youtubedl-android:library:$youtubedlAndroid")
+    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:$youtubedlAndroid")
+    implementation("io.github.junkfood02.youtubedl-android:aria2c:$youtubedlAndroid") // optional
+    */
+
     implementation("androidx.appcompat:appcompat:${rootProject.extra["appCompatVer"]}")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("androidx.core:core-ktx:${rootProject.extra["coreKtxVer"]}")

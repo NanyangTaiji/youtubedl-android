@@ -44,7 +44,6 @@ import com.yausername.youtubedl_android.YoutubeDLResponse;
 import org.jetbrains.annotations.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
-import androidx.appcompat.widget.Toolbar;
 
 public class UnifiedDownloadActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -81,7 +80,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
     private final String commandProcessId = "CommandProcess";
     private final String downloadProcessId = "DownloadProcess";
     
-    private static final String TAG = UnifiedDownloadActivity.class.getSimpleName();
+    private static final String TAG = "UnifiedDownloadActivity";
     
     // Command progress callback - using Runnable for UI updates
     private final DownloadProgressCallback commandCallback = new DownloadProgressCallback() {
@@ -101,16 +100,16 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
     private final DownloadProgressCallback downloadCallback = new DownloadProgressCallback() {
         @Override
         public void onProgressUpdate(float progress, long etaInSeconds, @Nullable String status) {
-            runOnUiThread(new Runnable() {
+            downloadProgressBar.post(new Runnable() {
                 @Override
                 public void run() {
+                    Log.e(TAG, "progress = " + progress + "/etaInSeconds = " + etaInSeconds);
                     downloadProgressBar.setProgress((int) progress);
                     tvDownloadStatus.setText(status);
                 }
             });
         }
     };
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -349,7 +348,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
         Disposable disposable = Observable.fromCallable(new java.util.concurrent.Callable<YoutubeDLResponse>() {
                     @Override
                     public YoutubeDLResponse call() throws Exception {
-                        return YoutubeDL.getInstance().execute(request, downloadProcessId);
+                        return YoutubeDL.getInstance().execute(request, downloadProcessId, downloadCallback);
                     }
                 })
                 .subscribeOn(Schedulers.newThread())
@@ -480,7 +479,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_download, menu);
         return true;
     }
 
@@ -504,11 +503,11 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                 .setItems(new String[]{"Stable Releases", "Nightly Releases", "Master Releases"},
                         (dialogInterface, which) -> {
                             if (which == 0)
-                                updateYoutubeDL(YoutubeDL.UpdateChannel._STABLE);
+                                updateYoutubeDL(YoutubeDL.UpdateChannel.STABLE);
                             else if (which == 1)
-                                updateYoutubeDL(YoutubeDL.UpdateChannel._NIGHTLY);
+                                updateYoutubeDL(YoutubeDL.UpdateChannel.NIGHTLY);
                             else
-                                updateYoutubeDL(YoutubeDL.UpdateChannel._MASTER);
+                                updateYoutubeDL(YoutubeDL.UpdateChannel.MASTER);
                         })
                 .create();
         dialog.show();

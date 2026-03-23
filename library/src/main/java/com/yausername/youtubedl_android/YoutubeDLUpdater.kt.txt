@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.yausername.youtubedl_android.YoutubeDL.UpdateChannel
 import com.yausername.youtubedl_android.YoutubeDL.UpdateStatus
 import com.yausername.youtubedl_android.YoutubeDL.getInstance
-import com.yausername.youtubedl_common.SharedPrefsHelper
-import com.yausername.youtubedl_common.SharedPrefsHelper.update
+import com.yausername.youtubedl_common.utils.SharedPrefsHelper
+import com.yausername.youtubedl_common.utils.SharedPrefsHelper.update
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
