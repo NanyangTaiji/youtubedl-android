@@ -3,7 +3,6 @@ package com.yausername.youtubedl_android_example;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,6 +11,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -25,7 +28,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.widget.NestedScrollView;
 
-import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.yausername.youtubedl_android.DownloadProgressCallback;
 import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
@@ -51,38 +53,38 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
     // UI Components
     private Button btnCommand, btnDownload;
     private LinearLayout commandLayout, downloadLayout;
-    
+
     // Command Mode UI
     private Button btnRunCommand, btnStopCommand;
     private EditText etCommand;
     private ProgressBar commandProgressBar;
     private TextView tvCommandStatus, tvCommandOutput;
-    
+
     // Download Mode UI
     private Button btnStartDownload, btnStopDownload;
     private EditText etDownloadUrl;
     private Switch useConfigFile;
     private ProgressBar downloadProgressBar;
     private TextView tvDownloadStatus, tvDownloadOutput;
-    
+
     // Stream Mode UI
     private Button btnStartStream;
-  //  private EditText etStreamUrl;
-    private VideoView videoView;
-    
+    //  private EditText etStreamUrl;
+    private WebView webView;
+
     // Common UI
     private ProgressBar pbLoading;
     private NestedScrollView scrollView;
-    
+
     // State variables
     private boolean commandRunning = false;
     private boolean downloading = false;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private final String commandProcessId = "CommandProcess";
     private final String downloadProcessId = "DownloadProcess";
-    
+
     private static final String TAG = "UnifiedDownloadActivity";
-    
+
     // Command progress callback - using Runnable for UI updates
     private final DownloadProgressCallback commandCallback = new DownloadProgressCallback() {
         @Override
@@ -96,7 +98,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             });
         }
     };
-    
+
     // Download progress callback
     private final android.os.Handler mainHandler =
             new android.os.Handler(android.os.Looper.getMainLooper());
@@ -114,19 +116,19 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
         }
     };
 
-   /* private final DownloadProgressCallback downloadCallback = new DownloadProgressCallback() {
-        @Override
-        public void onProgressUpdate(float progress, long etaInSeconds, @Nullable String status) {
-            downloadProgressBar.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "progress = " + progress + "/etaInSeconds = " + etaInSeconds);
-                    downloadProgressBar.setProgress((int) progress);
-                    tvDownloadStatus.setText(status);
-                }
-            });
-        }
-    };*/
+    /* private final DownloadProgressCallback downloadCallback = new DownloadProgressCallback() {
+         @Override
+         public void onProgressUpdate(float progress, long etaInSeconds, @Nullable String status) {
+             downloadProgressBar.post(new Runnable() {
+                 @Override
+                 public void run() {
+                     Log.e(TAG, "progress = " + progress + "/etaInSeconds = " + etaInSeconds);
+                     downloadProgressBar.setProgress((int) progress);
+                     tvDownloadStatus.setText(status);
+                 }
+             });
+         }
+     };*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,11 +136,11 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
 
         initViews();
         initListeners();
-        
+
         // Default to download mode
         setActiveMode("download");
     }
-    
+
     private void initViews() {
 
         if (getSupportActionBar() != null) {
@@ -148,15 +150,15 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
         // Mode buttons
         btnCommand = findViewById(R.id.btn_command_mode);
         btnDownload = findViewById(R.id.btn_download_mode);
-       // btnStream = findViewById(R.id.btn_stream_mode);
-        
+        // btnStream = findViewById(R.id.btn_stream_mode);
+
         // Layouts
         commandLayout = findViewById(R.id.command_layout);
         downloadLayout = findViewById(R.id.download_layout);
-       // streamLayout = findViewById(R.id.stream_layout);
+        // streamLayout = findViewById(R.id.stream_layout);
         scrollView = findViewById(R.id.scroll_view);
         pbLoading = findViewById(R.id.pb_status);
-        
+
         // Command mode views
         btnRunCommand = findViewById(R.id.btn_run_command);
         btnStopCommand = findViewById(R.id.btn_stop_command);
@@ -164,80 +166,93 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
         commandProgressBar = findViewById(R.id.command_progress_bar);
         tvCommandStatus = findViewById(R.id.tv_command_status);
         tvCommandOutput = findViewById(R.id.tv_command_output);
-        
+
         // Download mode views
         btnStartDownload = findViewById(R.id.btn_start_download);
-        btnStopDownload = findViewById(R.id.btn_stop_download);
+        btnStopDownload = findViewById(R.id.btn_stop_action);
         etDownloadUrl = findViewById(R.id.et_download_url);
         useConfigFile = findViewById(R.id.use_config_file);
         downloadProgressBar = findViewById(R.id.download_progress_bar);
         tvDownloadStatus = findViewById(R.id.tv_download_status);
         tvDownloadOutput = findViewById(R.id.tv_download_output);
-        
+
         // Stream mode views
         btnStartStream = findViewById(R.id.btn_start_stream);
-      //  etStreamUrl = findViewById(R.id.et_stream_url);
-        videoView = findViewById(R.id.video_view);
-        
+        //  etStreamUrl = findViewById(R.id.et_stream_url);
+        webView = findViewById(R.id.web_view);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                view.loadUrl(request.getUrl().toString());
+                return true; // Return true to indicate we've handled the URL
+            }
+
+            // For older APIs
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+
         // Set initial visibility
         commandLayout.setVisibility(View.GONE);
         downloadLayout.setVisibility(View.GONE);
         //streamLayout.setVisibility(View.GONE);
     }
-    
+
     private void initListeners() {
         btnCommand.setOnClickListener(this);
         btnDownload.setOnClickListener(this);
         //btnStream.setOnClickListener(this);
-        
+
         btnRunCommand.setOnClickListener(this);
         btnStopCommand.setOnClickListener(this);
         btnStartDownload.setOnClickListener(this);
         btnStopDownload.setOnClickListener(this);
         btnStartStream.setOnClickListener(this);
-        
-        videoView.setOnPreparedListener(new com.devbrackets.android.exomedia.listener.OnPreparedListener() {
-            @Override
-            public void onPrepared() {
-                videoView.start();
-            }
-        });
+
     }
-    
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        
+
         if (id == R.id.btn_command_mode) {
             setActiveMode("command");
         } else if (id == R.id.btn_download_mode) {
             setActiveMode("download");
-      //  } else if (id == R.id.btn_stream_mode) {
-           // setActiveMode("stream");
+            //  } else if (id == R.id.btn_stream_mode) {
+            // setActiveMode("stream");
         } else if (id == R.id.btn_run_command) {
             runCommand();
         } else if (id == R.id.btn_stop_command) {
             stopCommand();
         } else if (id == R.id.btn_start_download) {
             startDownload();
-        } else if (id == R.id.btn_stop_download) {
-            stopDownload();
+        } else if (id == R.id.btn_stop_action) {
+            stopAction();
         } else if (id == R.id.btn_start_stream) {
             startStream();
         }
     }
-    
+
     private void setActiveMode(String mode) {
         // Reset button styles
         btnCommand.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
         btnDownload.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-      //  btnStream.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-        
+        //  btnStream.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+
         // Hide all layouts
         commandLayout.setVisibility(View.GONE);
         downloadLayout.setVisibility(View.GONE);
-      //  streamLayout.setVisibility(View.GONE);
-        
+        //  streamLayout.setVisibility(View.GONE);
+
         // Show selected layout and highlight button
         if (mode.equals("command")) {
             commandLayout.setVisibility(View.VISIBLE);
@@ -250,27 +265,27 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             streamLayout.setVisibility(View.VISIBLE);
             btnStream.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
         }*/
-        
+
         scrollView.smoothScrollTo(0, 0);
     }
-    
+
     private void runCommand() {
         if (commandRunning) {
             Toast.makeText(this, "Command already in progress", Toast.LENGTH_LONG).show();
             return;
         }
-        
+
         if (!isStoragePermissionGranted()) {
             Toast.makeText(this, "Grant storage permission and retry", Toast.LENGTH_LONG).show();
             return;
         }
-        
+
         final String command = etCommand.getText().toString().trim();
         if (TextUtils.isEmpty(command)) {
             etCommand.setError(getString(R.string.command_error));
             return;
         }
-        
+
         YoutubeDLRequest request = new YoutubeDLRequest(Collections.emptyList());
         String commandRegex = "\"([^\"]*)\"|(\\S+)";
         Matcher m = Pattern.compile(commandRegex).matcher(command);
@@ -281,7 +296,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                 request.addOption(m.group(2));
             }
         }
-        
+
         showCommandStart();
         commandRunning = true;
 
@@ -314,10 +329,10 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                         commandRunning = false;
                     }
                 });
-        
+
         compositeDisposable.add(disposable);
     }
-    
+
     private void stopCommand() {
         if (commandRunning) {
             try {
@@ -329,28 +344,31 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             }
         }
     }
-    
+
     private void startDownload() {
         if (downloading) {
             Toast.makeText(this, "Download already in progress", Toast.LENGTH_LONG).show();
             return;
         }
-        
+
+        webView.onPause();
+        webView.setVisibility(View.GONE);
+
         if (!isStoragePermissionGranted()) {
             Toast.makeText(this, "Grant storage permission and retry", Toast.LENGTH_LONG).show();
             return;
         }
-        
+
         final String url = etDownloadUrl.getText().toString().trim();
         if (TextUtils.isEmpty(url)) {
             etDownloadUrl.setError(getString(R.string.url_error));
             return;
         }
-        
+
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
         File config = new File(youtubeDLDir, "config.txt");
-        
+
         if (useConfigFile.isChecked() && config.exists()) {
             request.addOption("--config-location", config.getAbsolutePath());
         } else {
@@ -359,7 +377,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
         }
-        
+
         showDownloadStart();
         downloading = true;
 
@@ -374,7 +392,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                     }
                 });
         compositeDisposable.add(progressDisposable);*/
-        
+
         // Start the actual download
         Disposable disposable = Observable.fromCallable(new java.util.concurrent.Callable<YoutubeDLResponse>() {
                     @Override
@@ -405,12 +423,16 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                         downloading = false;
                     }
                 });
-        
+
         compositeDisposable.add(disposable);
     }
-    
-    private void stopDownload() {
-        if (downloading) {
+
+    private void stopAction() {
+        if (!downloading) {
+            //stop preview
+            webView.onPause();
+            webView.setVisibility(View.GONE);
+        } else {
             try {
                 YoutubeDL.getInstance().destroyProcessById(downloadProcessId);
                 downloading = false;
@@ -420,7 +442,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             }
         }
     }
-    
+
     private void startStream() {
         final String url = etDownloadUrl.getText().toString().trim();
         if (TextUtils.isEmpty(url)) {
@@ -428,8 +450,8 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             return;
         }
 
-        videoView.setVisibility(View.VISIBLE);
-        
+        webView.setVisibility(View.VISIBLE);
+
         pbLoading.setVisibility(View.VISIBLE);
         Disposable disposable = Observable.fromCallable(new java.util.concurrent.Callable<VideoInfo>() {
                     @Override
@@ -449,8 +471,8 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                         if (TextUtils.isEmpty(videoUrl)) {
                             Toast.makeText(UnifiedDownloadActivity.this, "Failed to get stream URL", Toast.LENGTH_LONG).show();
                         } else {
-                            videoView.setMedia(Uri.parse(videoUrl));
-                            videoView.start();
+                            webView.loadUrl(videoUrl);
+                            // videoView.start();
                         }
                     }
                 }, new Consumer<Throwable>() {
@@ -461,24 +483,24 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                         Toast.makeText(UnifiedDownloadActivity.this, "Streaming failed", Toast.LENGTH_LONG).show();
                     }
                 });
-        
+
         compositeDisposable.add(disposable);
     }
-    
+
     private void showCommandStart() {
         tvCommandStatus.setText("Command starting...");
         commandProgressBar.setProgress(0);
         pbLoading.setVisibility(View.VISIBLE);
         tvCommandOutput.setText("");
     }
-    
+
     private void showDownloadStart() {
         tvDownloadStatus.setText(getString(R.string.download_start));
         downloadProgressBar.setProgress(0);
         pbLoading.setVisibility(View.VISIBLE);
         tvDownloadOutput.setText("");
     }
-    
+
     @NonNull
     private File getDownloadLocation() {
         File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -488,22 +510,22 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
         }
         return youtubeDLDir;
     }
-    
+
     private boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
-                ActivityCompat.requestPermissions(this, 
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else {
             return true;
         }
     }
-    
+
     @Override
     protected void onDestroy() {
         compositeDisposable.dispose();
@@ -561,7 +583,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(status -> {
-                   // pbLoading.setVisibility(View.GONE);
+                    // pbLoading.setVisibility(View.GONE);
                     switch (status) {
                         case DONE:
                             Toast.makeText(this, "Update successful " + YoutubeDL.getInstance().versionName(this), Toast.LENGTH_LONG).show();
