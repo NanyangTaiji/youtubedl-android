@@ -61,13 +61,4 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Common Loading Indicator -->
-    <ProgressBar
-        android:id="@+id/pb_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center"
-        tools:visibility="visible" />
-
 </LinearLayout>

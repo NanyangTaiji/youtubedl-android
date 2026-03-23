@@ -365,9 +365,16 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             return;
         }
 
+
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
         File config = new File(youtubeDLDir, "config.txt");
+
+        // CRITICAL: Add these options to force real-time output
+        request.addOption("--progress");           // Show progress
+        request.addOption("-v");                   // Verbose output
+        request.addOption("--no-cache-dir");       // Disable caching
+        request.addOption("--force-overwrites");   // Force overwrites
 
         if (useConfigFile.isChecked() && config.exists()) {
             request.addOption("--config-location", config.getAbsolutePath());
@@ -376,22 +383,14 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             request.addOption("--downloader", "libaria2c.so");
             request.addOption("-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best");
             request.addOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s.%(ext)s");
+
+            // Add aria2c specific options to force progress updates
+            request.addOption("--external-downloader-args", "aria2c:--summary-interval=1");
+            request.addOption("--external-downloader-args", "aria2c:--console-log-level=notice");
         }
 
         showDownloadStart();
         downloading = true;
-
-        // Subscribe to progress updates on main thread
-       /* Disposable progressDisposable = progressSubject
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<float[]>() {
-                    @Override
-                    public void accept(float[] values) {
-                        downloadProgressBar.setProgress((int) values[0]);
-                        tvDownloadStatus.setText((int) values[0] + "%");
-                    }
-                });
-        compositeDisposable.add(progressDisposable);*/
 
         // Start the actual download
         Disposable disposable = Observable.fromCallable(new java.util.concurrent.Callable<YoutubeDLResponse>() {
@@ -450,7 +449,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
             return;
         }
 
-        webView.setVisibility(View.VISIBLE);
+
 
         pbLoading.setVisibility(View.VISIBLE);
         Disposable disposable = Observable.fromCallable(new java.util.concurrent.Callable<VideoInfo>() {
@@ -467,6 +466,7 @@ public class UnifiedDownloadActivity extends AppCompatActivity implements View.O
                     @Override
                     public void accept(VideoInfo streamInfo) throws Exception {
                         pbLoading.setVisibility(View.GONE);
+                        webView.setVisibility(View.VISIBLE);
                         String videoUrl = streamInfo.getUrl();
                         if (TextUtils.isEmpty(videoUrl)) {
                             Toast.makeText(UnifiedDownloadActivity.this, "Failed to get stream URL", Toast.LENGTH_LONG).show();

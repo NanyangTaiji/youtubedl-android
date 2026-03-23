@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">youtubedl-android-example</string>
+    <string name="app_name">youtubedl</string>
     <string name="btn_streaming_example">Streaming Example</string>
     <string name="btn_downloading_example">Downloading Example</string>
     <string name="btn_command_example">Custom Command Example</string>
