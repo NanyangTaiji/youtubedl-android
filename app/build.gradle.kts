@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.yausername.youtubedl_android_example"
+        applicationId = "com.yausername.youtubedl"
         minSdk = 24
         targetSdk = 34
         versionName = rootProject.ext["versionName"] as String
